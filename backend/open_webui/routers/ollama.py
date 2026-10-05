@@ -1777,7 +1777,13 @@ async def download_model(
     file_name = parse_huggingface_url(form_data.url)
 
     if file_name:
-        file_path = f'{UPLOAD_DIR}/{file_name}'
+        file_name = os.path.basename(file_name)
+        file_path = os.path.join(UPLOAD_DIR, file_name)
+        if not os.path.realpath(file_path).startswith(os.path.realpath(UPLOAD_DIR)):
+            raise HTTPException(
+                status_code=400,
+                detail='Invalid file name.',
+            )
 
         return StreamingResponse(
             download_file_stream(url, form_data.url, file_path, file_name),
